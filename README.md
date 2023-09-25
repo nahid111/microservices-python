@@ -5,7 +5,7 @@
 ## About
 
 <p>
-This is an implementation of the video to mp3 converter system demonstrated at [Kantan Coding](https://www.youtube.com/watch?v=ZYAPH56ANC8)
+This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> implementation of the <strong>video to mp3 converter system</strong> demonstrated at <strong><a href="https://www.youtube.com/watch?v=ZYAPH56ANC8" target="_blank">Kantan Coding</a></strong>
 <p/>
 
 ### Components
