@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+spec:
+  type: ClusterIP
+  selector:
+    app: users
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: users-node
+          image: nahid111/py-micro-users
+          envFrom:
+            - secretRef:
+                name: secrets
+          ports:
+            - containerPort: 8000

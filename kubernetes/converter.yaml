@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: converter-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: converter
+  template:
+    metadata:
+      labels:
+        app: converter
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: converter-node
+          image: nahid111/py-micro-converter
+          envFrom:
+            - secretRef:
+                name: secrets

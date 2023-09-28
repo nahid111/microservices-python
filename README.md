@@ -27,12 +27,13 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
     - Client can then send a request to the Api-Gateway with the mp3 file id along with his/her jwt to download the mp3.
 
 ## Running with docker compose
+
 - Required envs <br/>
-    Create a **.env** file in project root with the following environment variables.<br/>
+  Create a **.env** file in project root with the following environment variables.<br/>
     ```dotenv
-    MYSQL_HOST="mysqlDB"
+    MYSQL_HOST=mysqlDB
     MYSQL_PORT=3306
-    MYSQL_DATABASE="db_local"
+    MYSQL_DATABASE=db_local
     MYSQL_PASSWORD=
     MYSQL_ROOT_PASSWORD=
 
@@ -41,17 +42,17 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
     SECRET_KEY=
     SECRET_KEY_REFRESH=
 
-    USERS_SERVICE_URL="http://users-service:8000"
-    RABBITMQ_HOST="rabbitMQ"
-    QUEUE_NAME="videos_queue_topic"
+    USERS_SERVICE_URL=http://users-service:8000
+    RABBITMQ_HOST=rabbitMQ
+    QUEUE_NAME=videos_queue_topic
     MONGO_INITDB_ROOT_USERNAME=
     MONGO_INITDB_ROOT_PASSWORD=
-    MONGODB_URL="mongodb://<YOUR_USER>:<YOUR_PASSWORD>@mongoDB:27017/"
+    MONGODB_URL=mongodb://<YOUR_USER>:<YOUR_PASSWORD>@mongoDB:27017/
 
-    CONVERTER_QUEUE_TO_PUBLISH="mp3s_queue_topic"
-    CONVERTER_QUEUE_TO_SUBSCRIBE="videos_queue_topic"
+    CONVERTER_QUEUE_TO_PUBLISH=mp3s_queue_topic
+    CONVERTER_QUEUE_TO_SUBSCRIBE=videos_queue_topic
 
-    NOTIFICATION_QUEUE_TO_SUBSCRIBE="mp3s_queue_topic"
+    NOTIFICATION_QUEUE_TO_SUBSCRIBE=mp3s_queue_topic
     MAIL_USERNAME=
     MAIL_PASSWORD=
     ```
@@ -72,3 +73,39 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
   $ docker compose down -v
   $ sudo rm -rf volMongo/ volMysql/ volRabbit/
   ```
+
+## Deploy to Kubernetes Cluster (minikube)
+
+- Build your images and push them to dockerhub
+- Set them appropriately in the deployment yaml files
+  ```yaml
+  apiVersion: apps/v1
+  ...
+  spec:
+    ...
+    template:
+      ...
+        containers:
+          - image: nahid111/py-micro-users
+  ```
+- Populate envs properly
+  ```dotenv
+  MYSQL_HOST=mysql-service
+  RABBITMQ_HOST=rabbitmq
+  MONGODB_URL=mongodb://<YOUR_USER>:<YOUR_PASSWORD>@mongodb-service:27017/
+  ```
+- Change permission for deployment scripts
+  ```commandline
+  $ chmod +x deployment.sh
+  $ chmod +x cleanup.sh
+  ```
+- Run ```./deployment.sh```
+- Use the minikube service url outputted in the terminal 
+  ```commandline
+  |-----------|---------------|-------------|---------------------------|
+  | NAMESPACE |     NAME      | TARGET PORT |            URL            |
+  |-----------|---------------|-------------|---------------------------|
+  | default   |gateway-service|        5000 | http://192.168.49.2:30312 |
+  |-----------|---------------|-------------|---------------------------|
+  ```
+- For cleaning up, run ```./cleanup.sh```

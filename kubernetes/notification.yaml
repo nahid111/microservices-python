@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: notification-node
+          image: nahid111/py-micro-notification
+          envFrom:
+            - secretRef:
+                name: secrets

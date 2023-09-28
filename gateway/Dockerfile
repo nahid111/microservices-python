@@ -1,13 +1,15 @@
-FROM python:3.10.13-slim
+FROM python:3.11.5-slim
 
 ENV INSTALL_PATH /gateway_svc_app
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
-COPY requirements.txt requirements.txt
+COPY ./requirements.txt $INSTALL_PATH
+RUN pip install --no-cache-dir --requirement $INSTALL_PATH/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+COPY . $INSTALL_PATH
 
-COPY . .
+CMD ["python3", "run.py"]
 
-CMD ["python", "run.py"]
+
+
