@@ -10,52 +10,26 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
 
 ### Components
 
-- **Api-Gateway**
-    - Gateway to the system for handling all incoming requests from clients.
-    - Stores uploaded videos in a **MongoDB** database.
-    - Puts a message in **RabbitMQ** when a video is uploaded.
+- **Gateway**
+  - Gateway to the system for handling all incoming requests from clients.
+  - Stores uploaded videos in a **MongoDB** database.
+  - Puts a message in **RabbitMQ** when a video is uploaded.
 - **users-service**
-    - Responsible for user registration and user authentication.
-    - Stores user data in a **MySql** database.
+  - Responsible for user registration and user authentication.
+  - Stores user data in a **MySql** database.
 - **Converter-Service**
-    - Consumes message from **RabbitMQ** to get video file ID and downloads the video.
-    - Converts the video to mp3 and stores in **MongoDB**.
-    - Puts a message in **RabbitMQ** with the mp3 file ID.
+  - Consumes message from **RabbitMQ** to get video file ID and downloads the video.
+  - Converts the video to mp3 and stores in **MongoDB**.
+  - Puts a message in **RabbitMQ** with the mp3 file ID.
 - **Notification-Service**
-    - Consumes message from **RabbitMQ** to get mp3 file ID.
-    - Sends email to the client with the mp3 file ID.
-    - Client can then send a request to the Api-Gateway with the mp3 file id along with his/her jwt to download the mp3.
+  - Consumes message from **RabbitMQ** to get mp3 file ID.
+  - Sends email to the client with the mp3 file ID.
+  - Client can then send a request to the Api-Gateway with the mp3 file id along with his/her jwt to download the mp3.
 
 ## Running with docker compose
 
 - Required envs <br/>
-  Create a **.env** file in project root with the following environment variables.<br/>
-    ```dotenv
-    MYSQL_HOST=mysqlDB
-    MYSQL_PORT=3306
-    MYSQL_DATABASE=db_local
-    MYSQL_PASSWORD=
-    MYSQL_ROOT_PASSWORD=
-
-    ACCESS_TOKEN_EXPIRES_IN=15
-    REFRESH_TOKEN_EXPIRES_IN=60
-    SECRET_KEY=
-    SECRET_KEY_REFRESH=
-
-    USERS_SERVICE_URL=http://users-service:8000
-    RABBITMQ_HOST=rabbitMQ
-    QUEUE_NAME=videos_queue_topic
-    MONGO_INITDB_ROOT_USERNAME=
-    MONGO_INITDB_ROOT_PASSWORD=
-    MONGODB_URL=mongodb://<YOUR_USER>:<YOUR_PASSWORD>@mongoDB:27017/
-
-    CONVERTER_QUEUE_TO_PUBLISH=mp3s_queue_topic
-    CONVERTER_QUEUE_TO_SUBSCRIBE=videos_queue_topic
-
-    NOTIFICATION_QUEUE_TO_SUBSCRIBE=mp3s_queue_topic
-    MAIL_USERNAME=
-    MAIL_PASSWORD=
-    ```
+  Create a **.env** file in project root with the values from **example.env** file
 - Run docker compose
   ```commandline
   $ docker compose up
@@ -74,10 +48,10 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
   $ sudo rm -rf volMongo/ volMysql/ volRabbit/
   ```
 
-## Deploy to Kubernetes Cluster (minikube)
+## Deploy to Kubernetes Cluster (<a href="https://minikube.sigs.k8s.io/">minikube</a>)
 
 - Build your images and push them to dockerhub
-- Set them appropriately in the deployment yaml files
+- Set them appropriately in the deployment yaml files like so
   ```yaml
   apiVersion: apps/v1
   ...
@@ -99,8 +73,8 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
   $ chmod +x deployment.sh
   $ chmod +x cleanup.sh
   ```
-- Run ```./deployment.sh```
-- Use the minikube service url outputted in the terminal 
+- Run `./deployment.sh`
+- Use the minikube service url outputted in the terminal
   ```commandline
   |-----------|---------------|-------------|---------------------------|
   | NAMESPACE |     NAME      | TARGET PORT |            URL            |
@@ -108,4 +82,4 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
   | default   |gateway-service|        5000 | http://192.168.49.2:30312 |
   |-----------|---------------|-------------|---------------------------|
   ```
-- For cleaning up, run ```./cleanup.sh```
+- For cleaning up, run `./cleanup.sh`
