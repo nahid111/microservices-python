@@ -2,42 +2,42 @@ version: '3.8'
 services:
 
 
-#  rabbitMQ:
-#    image: rabbitmq:3-management-alpine
-#    container_name: "rabbitMQ"
-#    restart: unless-stopped
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    volumes:
-#      - ./volRabbit/data/:/var/lib/rabbitmq/
-#      - ./volRabbit/log/:/var/log/rabbitmq
-#    networks:
-#      - skynet
-#    healthcheck:
-#      test: ["CMD", "rabbitmqctl", "status"]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 5
-#
-#  mongoDB:
-#    image: mongo:6-jammy
-#    container_name: "mongoDB"
-#    env_file:
-#      - ./.env
-#    restart: unless-stopped
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - ./volMongo:/data/db
-#    networks:
-#      - skynet
-#    healthcheck:
-#      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
-#      interval: 10s
-#      timeout: 10s
-#      retries: 5
-#      start_period: 10s
+  rabbitMQ:
+    image: rabbitmq:3-management-alpine
+    container_name: "rabbitMQ"
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./volRabbit/data/:/var/lib/rabbitmq/
+      - ./volRabbit/log/:/var/log/rabbitmq
+    networks:
+      - skynet
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongoDB:
+    image: mongo:6-jammy
+    container_name: "mongoDB"
+    env_file:
+      - ./.env
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./volMongo:/data/db
+    networks:
+      - skynet
+    healthcheck:
+      test: [ "CMD","mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   mysqlDB:
     image: mysql:8.0
@@ -94,61 +94,61 @@ services:
     volumes:
       - './users-service/:/users_svc_app'
 
-#  gateway-service:
-#    build:
-#      context: ./gateway
-#      dockerfile: Dockerfile
-#    container_name: "gateway-service"
-#    command: [ "python", "run.py" ]
-#    ports:
-#      - "5000:5000"
-#    env_file:
-#      - ./.env
-#    depends_on:
-#      mongoDB:
-#        condition: service_healthy
-#      rabbitMQ:
-#        condition: service_healthy
-#    networks:
-#      - skynet
-#    volumes:
-#      - './gateway/:/gateway_svc_app'
-#
-#  converter-service:
-#    build:
-#      context: ./converter-service
-#      dockerfile: Dockerfile
-#    container_name: "converter-service"
-#    command: [ "python", "run.py" ]
-#    env_file:
-#      - ./.env
-#    depends_on:
-#      mongoDB:
-#        condition: service_healthy
-#      rabbitMQ:
-#        condition: service_healthy
-#    networks:
-#      - skynet
-#    volumes:
-#      - './converter-service/:/converter_svc_app'
-#
-#  notification-service:
-#    build:
-#      context: ./notification-service
-#      dockerfile: Dockerfile
-#    container_name: "notification-service"
-#    command: [ "python", "run.py" ]
-#    env_file:
-#      - ./.env
-#    depends_on:
-#      mongoDB:
-#        condition: service_healthy
-#      rabbitMQ:
-#        condition: service_healthy
-#    networks:
-#      - skynet
-#    volumes:
-#      - './notification-service/:/notification_svc_app'
+  gateway-service:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: "gateway-service"
+    command: [ "python", "run.py" ]
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env
+    depends_on:
+      mongoDB:
+        condition: service_healthy
+      rabbitMQ:
+        condition: service_healthy
+    networks:
+      - skynet
+    volumes:
+      - './gateway/:/gateway_svc_app'
+
+  converter-service:
+    build:
+      context: ./converter-service
+      dockerfile: Dockerfile
+    container_name: "converter-service"
+    command: [ "python", "run.py" ]
+    env_file:
+      - ./.env
+    depends_on:
+      mongoDB:
+        condition: service_healthy
+      rabbitMQ:
+        condition: service_healthy
+    networks:
+      - skynet
+    volumes:
+      - './converter-service/:/converter_svc_app'
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: "notification-service"
+    command: [ "python", "run.py" ]
+    env_file:
+      - ./.env
+    depends_on:
+      mongoDB:
+        condition: service_healthy
+      rabbitMQ:
+        condition: service_healthy
+    networks:
+      - skynet
+    volumes:
+      - './notification-service/:/notification_svc_app'
 
 networks:
   skynet:
