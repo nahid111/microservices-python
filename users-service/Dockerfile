@@ -1,25 +1,30 @@
-FROM python:3.11.5-slim
+FROM python:3.13.5-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set environment variables to avoid python buffering and ensure Poetry installs dependencies correctly
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VERSION=1.8.0
 
-RUN buildDeps='pkg-config build-essential' && \
-    apt update && \
-    apt install --no-install-recommends -y $buildDeps default-libmysqlclient-dev && \
-    export MYSQLCLIENT_CFLAGS=`pkg-config mysqlclient --cflags` && \
-    export MYSQLCLIENT_LDFLAGS=`pkg-config mysqlclient --libs` && \
-    pip install mysqlclient && \
-    apt purge -y --auto-remove $buildDeps && \
-    rm -rf /var/cache/apt
+# Install system dependencies for psycopg2 and Poetry
+RUN apt update \
+    && apt install -y --no-install-recommends gcc libpq-dev python3-dev curl \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV INSTALL_PATH /users_svc_app
+# Set working directory inside the container
+ENV INSTALL_PATH=/users_svc_app
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
-COPY ./requirements.txt $INSTALL_PATH
-RUN pip install --no-cache-dir --requirement $INSTALL_PATH/requirements.txt
+# Copy the poetry configuration and pyproject.toml files
+COPY pyproject.toml poetry.lock* /app/
 
+# Install project dependencies via Poetry (using the locked version)
+RUN poetry install --no-interaction --no-ansi
+
+# Copy the rest of the application files to the container
 COPY . $INSTALL_PATH
 
-CMD ["python3", "run.py"]
+CMD ["gunicorn", "app.main:app", "--bind", "0.0.0.0:8000", "--worker-class", "uvicorn.workers.UvicornWorker", "--capture-output", "--log-level", "debug"]
 

@@ -10,26 +10,14 @@
 4. Source the virtual environment:
    <br/><nbsp/>`source project_name_venv/bin/activate`
 5. Install the dependencies in the virtual environment:
-   <br/><nbsp/>`pip install -r requirements.txt`
+   <br/><nbsp/>`pip install poetry`
+   <br/><nbsp/>`poetry install --no-root`
 
 ## Setting up DB
 
 1. ```$ pkg-config```
-2. create the .env file in the project root directory and set the values:
-   ```shell
-    MYSQL_DB=
-    MYSQL_HOST=
-    MYSQL_PORT=
-    MYSQL_USER=
-    MYSQL_PASSWORD=
-    
-    SECRET_KEY=
-    SECRET_KEY_REFRESH=
-    ACCESS_TOKEN_EXPIRES_IN=
-    REFRESH_TOKEN_EXPIRES_IN=
-   ```
-
-2. Run migrations
+2. create the .env file using .env.example file in the project root directory and set the
+3. Run migrations
    ```shell
    alembic upgrade head
    ```

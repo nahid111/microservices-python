@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core import security
-from app.db.database import get_db
-from app.utils import credentials_exception
+from app.db import get_session
+from app.core.exceptions import credentials_exception
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login", scheme_name="JWT")
 
@@ -47,7 +47,7 @@ def require_token(token: str = Depends(oauth2_scheme)):
     return security.validate_access_token(token)
 
 
-def require_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def require_current_user(db: Session = Depends(get_session), token: str = Depends(oauth2_scheme)):
     """Function to make route protected and get current_user"""
     email = security.validate_access_token(token)
     user = get_user_by_email(db, email)
