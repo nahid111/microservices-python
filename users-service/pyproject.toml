@@ -9,7 +9,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 dotenv = "^0.9.9"
-fastapi = "^0.115.12"
 uvicorn = "^0.34.3"
 sqlmodel = "^0.0.24"
 psycopg2 = "^2.9.10"
@@ -20,6 +19,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.20"
 gunicorn = "^23.0.0"
 isort = "^6.0.1"
+fastapi = {extras = ["standard"], version = "^0.115.13"}
 
 
 [build-system]

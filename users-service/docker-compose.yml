@@ -11,6 +11,7 @@ services:
       - /bin/bash
       - -c
       - |
+        alembic upgrade head
         gunicorn app.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
     depends_on:
       db:
