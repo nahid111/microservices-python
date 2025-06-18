@@ -1,26 +1,25 @@
-[project]
+[tool.poetry]
 name = "users-service"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Your Name",email = "you@example.com"}
-]
+authors = ["Muhammad Nahid <mdnahid22@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "dotenv (>=0.9.9,<0.10.0)",
-    "fastapi (>=0.115.12,<0.116.0)",
-    "uvicorn (>=0.34.3,<0.35.0)",
-    "sqlmodel (>=0.0.24,<0.0.25)",
-    "psycopg2 (>=2.9.10,<3.0.0)",
-    "pydantic[email] (>=2.11.7,<3.0.0)",
-    "alembic (>=1.16.2,<2.0.0)",
-    "python-jose[cryptography] (>=3.5.0,<4.0.0)",
-    "passlib[bcrypt] (>=1.7.4,<2.0.0)",
-    "python-multipart (>=0.0.20,<0.0.21)",
-    "gunicorn (>=23.0.0,<24.0.0)",
-    "isort (>=6.0.1,<7.0.0)"
-]
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+dotenv = "^0.9.9"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.3"
+sqlmodel = "^0.0.24"
+psycopg2 = "^2.9.10"
+pydantic = {extras = ["email"], version = "^2.11.7"}
+alembic = "^1.16.2"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.20"
+gunicorn = "^23.0.0"
+isort = "^6.0.1"
 
 
 [build-system]
