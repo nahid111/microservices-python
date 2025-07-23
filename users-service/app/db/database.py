@@ -1,23 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlmodel import Session, create_engine
 
-from app.core.config import settings
-
-db_user = settings.MYSQL_USER
-db_pass = settings.MYSQL_PASSWORD
-db_host = settings.MYSQL_HOST
-db_port = settings.MYSQL_PORT
-db_name = settings.MYSQL_DATABASE
-
-SQLALCHEMY_DATABASE_URL = f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from app.core.settings import settings
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+engine = create_engine(settings.DATABASE_URL, echo=False)
+
+
+def get_session():
+    """Dependency to get a database session."""
+    with Session(engine) as session:
+        yield session

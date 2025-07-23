@@ -1,4 +1,4 @@
-FROM python:3.11.5-alpine
+FROM python:3.13.5-alpine
 
 ENV INSTALL_PATH /notification_svc_app
 RUN mkdir -p $INSTALL_PATH

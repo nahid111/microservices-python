@@ -39,35 +39,45 @@ services:
       retries: 5
       start_period: 10s
 
-  mysqlDB:
-    image: mysql:8.0
-    container_name: "mysqlDB"
-    cap_add:
-      - SYS_NICE
+  mongo-express:
+    image: mongo-express
     restart: always
-    command: --default-authentication-plugin=caching_sha2_password
-    env_file:
-      - ./.env
     ports:
-      - '3306:3306'
-    volumes:
-      - volMysql:/var/lib/mysql
-      - ./volMysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongoDB:27017/
+      ME_CONFIG_BASICAUTH: false
     networks:
       - skynet
-    healthcheck:
-      test: [ "CMD-SHELL", "until mysqladmin ping -h localhost; do sleep 5; done" ]
-      timeout: 30s
-      retries: 5
-
-  mysqlDBAdminer:
-    image: adminer:latest
-    container_name: "mysqlDBAdminer"
-    restart: unless-stopped
-    environment:
-      ADMINER_DEFAULT_SERVER: mysqlDB
+  
+  pgDB:
+    image: postgres:15
+    shm_size: 128mb
     ports:
-      - "8090:8080"
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - volPostgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"] # Check specific database
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - skynet
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: pgDB
     networks:
       - skynet
 
@@ -81,13 +91,15 @@ services:
       - -c
       - |
         alembic upgrade head
-        python run.py
+        gunicorn app.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
     ports:
       - "8000:8000"
     env_file:
       - ./.env
+    environment:
+      - POSTGRES_HOST=pgDB
     depends_on:
-      mysqlDB:
+      pgDB:
         condition: service_healthy
     networks:
       - skynet
@@ -157,5 +169,5 @@ networks:
 volumes:
   volRabbit:
   volMongo:
-  volMysql:
+  volPostgres:
 

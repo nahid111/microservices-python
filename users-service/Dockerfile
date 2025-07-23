@@ -1,25 +1,38 @@
-FROM python:3.11.5-slim
+FROM python:3.13.5-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set environment variables to avoid python buffering and ensure Poetry installs dependencies correctly
+ENV PYTHONUNBUFFERED=1 
+# ENV POETRY_VIRTUALENVS_CREATE=false
 
-RUN buildDeps='pkg-config build-essential' && \
-    apt update && \
-    apt install --no-install-recommends -y $buildDeps default-libmysqlclient-dev && \
-    export MYSQLCLIENT_CFLAGS=`pkg-config mysqlclient --cflags` && \
-    export MYSQLCLIENT_LDFLAGS=`pkg-config mysqlclient --libs` && \
-    pip install mysqlclient && \
-    apt purge -y --auto-remove $buildDeps && \
-    rm -rf /var/cache/apt
+# Set working directory inside the container
+ENV WORK_DIR=/users_svc_app
+RUN mkdir -p $WORK_DIR
+WORKDIR $WORK_DIR
 
-ENV INSTALL_PATH /users_svc_app
-RUN mkdir -p $INSTALL_PATH
-WORKDIR $INSTALL_PATH
+# Install system dependencies for psycopg2
+RUN apt update && apt install -y libpq-dev gcc
 
-COPY ./requirements.txt $INSTALL_PATH
-RUN pip install --no-cache-dir --requirement $INSTALL_PATH/requirements.txt
+# # Copy the poetry configuration and pyproject.toml files
+# COPY pyproject.toml poetry.lock README.md $WORK_DIR
+# RUN pip install poetry
 
-COPY . $INSTALL_PATH
+# # Install project dependencies via Poetry (using the locked version)
+# RUN poetry config virtualenvs.create false \
+#   && poetry install --no-interaction --no-ansi --no-root
 
-CMD ["python3", "run.py"]
+# Use the system Python environment
+ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
+# Copy the uv configuration and pyproject.toml files
+COPY pyproject.toml uv.lock README.md $WORK_DIR
+RUN pip install uv
+
+# Install project dependencies via uv (using the locked version)
+RUN uv sync --frozen
+
+# Copy the rest of the application files to the container
+COPY . $WORK_DIR
+
+CMD ["gunicorn", "app.main:app", "--bind", "0.0.0.0:8000", "--worker-class", "uvicorn.workers.UvicornWorker", "--capture-output", "--log-level", "debug"]
+
+# gunicorn app.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug

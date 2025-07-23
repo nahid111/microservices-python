@@ -1,10 +1,13 @@
-from sqlalchemy import Column, Integer, String
+from datetime import datetime
 
-from app.db.base_class import Base
+from sqlmodel import Field, SQLModel
 
 
-class User(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String(length=100), index=True)
-    email = Column(String(length=100), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(length=200), nullable=False)
+class User(SQLModel, table=True):
+    """DB model for User"""
+
+    id: int | None = Field(default=None, primary_key=True)
+    full_name: str | None = Field(default=None, max_length=100, index=True)
+    email: str = Field(max_length=100, index=True, unique=True)
+    hashed_password: str = Field(max_length=200)
+    created_at: datetime = Field(default_factory=datetime.now)

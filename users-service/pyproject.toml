@@ -1,0 +1,24 @@
+[project]
+name = "users-service"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Muhammad Nahid", email = "mdnahid22@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "alembic==1.16.4",
+    "dotenv==0.9.9",
+    "fastapi[standard]==0.116.1",
+    "gunicorn==23.0.0",
+    "passlib[bcrypt]==1.7.4",
+    "psycopg2==2.9.10",
+    "pydantic[email]==2.11.7",
+    "python-jose[cryptography]==3.5.0",
+    "python-multipart==0.0.20",
+    "ruff==0.12.4",
+    "sqlmodel==0.0.24",
+    "uvicorn==0.35.0",
+]
