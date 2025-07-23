@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13.5-slim
 
 # Set environment variables to avoid python buffering and ensure Poetry installs dependencies correctly
 ENV PYTHONUNBUFFERED=1 
@@ -12,13 +12,23 @@ WORKDIR $WORK_DIR
 # Install system dependencies for psycopg2
 RUN apt update && apt install -y libpq-dev gcc
 
-# Copy the poetry configuration and pyproject.toml files
-COPY pyproject.toml poetry.lock README.md $WORK_DIR
-RUN pip install poetry
+# # Copy the poetry configuration and pyproject.toml files
+# COPY pyproject.toml poetry.lock README.md $WORK_DIR
+# RUN pip install poetry
 
-# Install project dependencies via Poetry (using the locked version)
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi --no-root
+# # Install project dependencies via Poetry (using the locked version)
+# RUN poetry config virtualenvs.create false \
+#   && poetry install --no-interaction --no-ansi --no-root
+
+# Use the system Python environment
+ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
+
+# Copy the uv configuration and pyproject.toml files
+COPY pyproject.toml uv.lock README.md $WORK_DIR
+RUN pip install uv
+
+# Install project dependencies via uv (using the locked version)
+RUN uv sync --frozen
 
 # Copy the rest of the application files to the container
 COPY . $WORK_DIR

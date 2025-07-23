@@ -1,27 +1,24 @@
-[tool.poetry]
+[project]
 name = "users-service"
 version = "0.1.0"
 description = ""
-authors = ["Muhammad Nahid <mdnahid22@gmail.com>"]
+authors = [
+    { name = "Muhammad Nahid", email = "mdnahid22@gmail.com" }
+]
 readme = "README.md"
+requires-python = ">=3.12"
 
-
-[tool.poetry.dependencies]
-python = "^3.12"
-dotenv = "^0.9.9"
-uvicorn = "^0.34.3"
-sqlmodel = "^0.0.24"
-psycopg2 = "^2.9.10"
-pydantic = {extras = ["email"], version = "^2.11.7"}
-alembic = "^1.16.2"
-python-jose = {extras = ["cryptography"], version = "^3.5.0"}
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-python-multipart = "^0.0.20"
-gunicorn = "^23.0.0"
-isort = "^6.0.1"
-fastapi = {extras = ["standard"], version = "^0.115.13"}
-
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+dependencies = [
+    "alembic==1.16.4",
+    "dotenv==0.9.9",
+    "fastapi[standard]==0.116.1",
+    "gunicorn==23.0.0",
+    "passlib[bcrypt]==1.7.4",
+    "psycopg2==2.9.10",
+    "pydantic[email]==2.11.7",
+    "python-jose[cryptography]==3.5.0",
+    "python-multipart==0.0.20",
+    "ruff==0.12.4",
+    "sqlmodel==0.0.24",
+    "uvicorn==0.35.0",
+]

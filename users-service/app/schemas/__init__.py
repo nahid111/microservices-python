@@ -1,2 +1,2 @@
-from .auth import *
-from .user import User, UserCreate, UserInDB, UserUpdate
+from app.schemas.auth import *
+from app.schemas.user import User, UserCreate, UserInDB, UserUpdate

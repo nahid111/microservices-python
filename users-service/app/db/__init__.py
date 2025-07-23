@@ -1,1 +1,1 @@
-from app.db.database import get_session #noqa: F401
+from app.db.database import get_session
