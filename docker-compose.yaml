@@ -39,26 +39,18 @@ services:
       retries: 5
       start_period: 10s
 
-  mysqlDB:
-    image: mysql:8.0
-    container_name: "mysqlDB"
-    cap_add:
-      - SYS_NICE
+  mongo-express:
+    image: mongo-express
     restart: always
-    command: --default-authentication-plugin=caching_sha2_password
-    env_file:
-      - ./.env
     ports:
-      - '3306:3306'
-    volumes:
-      - volMysql:/var/lib/mysql
-      - ./volMysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongoDB:27017/
+      ME_CONFIG_BASICAUTH: false
     networks:
       - skynet
-    healthcheck:
-      test: [ "CMD-SHELL", "until mysqladmin ping -h localhost; do sleep 5; done" ]
-      timeout: 30s
-      retries: 5
   
   pgDB:
     image: postgres:15
@@ -68,7 +60,7 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - volPostgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"] # Check specific database
       interval: 5s
@@ -76,6 +68,8 @@ services:
       retries: 10
       start_period: 10s
     restart: unless-stopped
+    networks:
+      - skynet
 
   adminer:
     image: adminer
@@ -102,8 +96,10 @@ services:
       - "8000:8000"
     env_file:
       - ./.env
+    environment:
+      - POSTGRES_HOST=pgDB
     depends_on:
-      mysqlDB:
+      pgDB:
         condition: service_healthy
     networks:
       - skynet
@@ -173,5 +169,5 @@ networks:
 volumes:
   volRabbit:
   volMongo:
-  volMysql:
+  volPostgres:
 

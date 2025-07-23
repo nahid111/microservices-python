@@ -1,4 +1,4 @@
-FROM python:3.11.5-slim
+FROM python:3.13.5-slim
 
 ENV INSTALL_PATH /gateway_svc_app
 RUN mkdir -p $INSTALL_PATH

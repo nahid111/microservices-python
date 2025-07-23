@@ -3,7 +3,7 @@ import os
 import tempfile
 
 import gridfs
-import moviepy.editor
+from moviepy import VideoFileClip
 from bson.objectid import ObjectId
 from pymongo import MongoClient
 
@@ -34,7 +34,7 @@ def convert(message):
             # Add video contents to empty file
             tf.write(video_data.read())
             # Create audio from temp video file
-            audio = moviepy.editor.VideoFileClip(tf.name).audio
+            audio = VideoFileClip(tf.name).audio
 
             # Create a temporary MP3 file
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tf_mp3:
