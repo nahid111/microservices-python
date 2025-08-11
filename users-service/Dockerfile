@@ -33,6 +33,6 @@ RUN uv sync --frozen
 # Copy the rest of the application files to the container
 COPY . $WORK_DIR
 
-CMD ["gunicorn", "app.main:app", "--bind", "0.0.0.0:8000", "--worker-class", "uvicorn.workers.UvicornWorker", "--capture-output", "--log-level", "debug"]
+CMD ["gunicorn", "app.main:app", "--bind", "0.0.0.0:8008", "--worker-class", "uvicorn.workers.UvicornWorker", "--capture-output", "--log-level", "debug"]
 
-# gunicorn app.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
+# gunicorn app.main:app --bind 0.0.0.0:8008 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
