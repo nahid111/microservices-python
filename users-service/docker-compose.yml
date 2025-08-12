@@ -6,13 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8008:8008"
     command:
       - /bin/bash
       - -c
       - |
         alembic upgrade head
-        gunicorn app.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
+        gunicorn app.main:app --bind 0.0.0.0:8008 --worker-class uvicorn.workers.UvicornWorker --capture-output --log-level debug
     depends_on:
       db:
         condition: service_healthy

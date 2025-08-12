@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notification-deployment
+  namespace: ns-py-micro
 spec:
   replicas: 1
   selector:
@@ -16,6 +17,7 @@ spec:
       containers:
         - name: notification-node
           image: nahid111/py-micro-notification
+          imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
                 name: secrets

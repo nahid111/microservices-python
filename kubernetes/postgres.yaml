@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-pv
+  name: postgres-pv
 spec:
   capacity:
     storage: 1Gi
@@ -10,16 +10,17 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/k8data/mysql"
+    path: "/k8data/postgres"
     type: DirectoryOrCreate
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: postgres-pvc
+  namespace: ns-py-micro
 spec:
-  volumeName: mysql-pv
+  volumeName: postgres-pv
   storageClassName: standard
   accessModes:
     - ReadWriteOnce
@@ -31,45 +32,46 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: postgres-service
+  namespace: ns-py-micro
 spec:
   type: ClusterIP
   selector:
-    app: mysql
+    app: postgres
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 5432
+      targetPort: 5432
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-deployment
+  name: postgres-deployment
+  namespace: ns-py-micro
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: postgres
   template:
     metadata:
       labels:
-        app: mysql
+        app: postgres
     spec:
       restartPolicy: Always
       containers:
-        - name: mysql-node
-          image: mysql:8.0
+        - name: postgres-node
+          image: postgres:15
           envFrom:
             - secretRef:
                 name: secrets
           ports:
-            - containerPort: 3306
+            - containerPort: 5432
           volumeMounts:
-            - name: mysql-volume
-              mountPath: /var/lib/mysql
+            - name: postgres-volume
+              mountPath: /var/lib/postgresql/data
       volumes:
-        - name: mysql-volume
+        - name: postgres-volume
           persistentVolumeClaim:
-            claimName: mysql-pvc
-      restartPolicy: Always
+            claimName: postgres-pvc

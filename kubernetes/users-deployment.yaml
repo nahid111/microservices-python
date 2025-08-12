@@ -2,20 +2,22 @@ apiVersion: v1
 kind: Service
 metadata:
   name: users-service
+  namespace: ns-py-micro
 spec:
   type: ClusterIP
   selector:
     app: users
   ports:
     - protocol: TCP
-      port: 8000
-      targetPort: 8000
+      port: 8008
+      targetPort: 8008
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: users-deployment
+  namespace: ns-py-micro
 spec:
   replicas: 1
   selector:
@@ -30,8 +32,9 @@ spec:
       containers:
         - name: users-node
           image: nahid111/py-micro-users
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8008
           envFrom:
             - secretRef:
                 name: secrets
-          ports:
-            - containerPort: 8000

@@ -2,15 +2,25 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: users-migration-job
+  namespace: ns-py-micro
 spec:
   template:
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres-service -p 5432; do
+                echo "waiting for postgres"
+                sleep 2
+              done
       containers:
-        - name: wait-for-mysql
-          image: busybox
-          command: ["sh", "-c", "until nc -z mysql-service 3306; do sleep 1; done;"]
         - name: alembic-migration-container
           image: nahid111/py-micro-users
+          imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
                 name: secrets
