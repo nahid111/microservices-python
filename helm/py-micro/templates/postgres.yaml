@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: {{ .Values.storage.postgres.size }}
+  volumeMode: Filesystem
+  storageClassName: {{ .Values.storage.className }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.storage.postgres.path }}
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: {{ .Values.namespace }}
+spec:
+  volumeName: postgres-pv
+  storageClassName: {{ .Values.storage.className }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.postgres.size }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: {{ .Values.postgres.port }}
+      targetPort: {{ .Values.postgres.port }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.postgres.replicas }}
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          ports:
+            - containerPort: {{ .Values.postgres.port }}
+          envFrom:
+            - secretRef:
+                name: secrets
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc

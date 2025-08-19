@@ -1,48 +1,94 @@
 #!/bin/bash
 
-# Build Docker images
-echo "Building Docker images..."
-docker build -t nahid111/py-micro-users ./users-service/
-docker build -t nahid111/py-micro-converter ./converter-service/
-docker build -t nahid111/py-micro-notification ./notification-service/
-docker build -t nahid111/py-micro-gateway ./gateway/
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
-# # Load images into kind cluster
-echo "Loading images into kind cluster..."
-kind load docker-image nahid111/py-micro-users
-kind load docker-image nahid111/py-micro-converter
-kind load docker-image nahid111/py-micro-notification
-kind load docker-image nahid111/py-micro-gateway
+# Print header
+echo -e "${GREEN}=======================================================${NC}"
+echo -e "${GREEN}            Microservices Deployment Script            ${NC}"
+echo -e "${GREEN}=======================================================${NC}"
 
-# Create namespace
-echo "Creating namespace..."
-kubectl apply -f kubernetes/namespace.yaml
+# Function to display usage
+usage() {
+    echo -e "\nUsage:"
+    echo -e "  ${CYAN}./deploy.sh [options]${NC}"
+    echo -e "\nOptions:"
+    echo -e "  ${CYAN}-h, --help${NC}      Show this help message"
+    echo -e "  ${CYAN}-t, --type${NC}      Deployment type (helm or k8s)"
+    echo -e "\nExamples:"
+    echo -e "  ${CYAN}./deploy.sh --type helm${NC}    # Deploy using Helm"
+    echo -e "  ${CYAN}./deploy.sh --type k8s${NC}     # Deploy using plain Kubernetes manifests"
+    echo -e "  ${CYAN}./deploy.sh${NC}               # Will prompt for deployment type\n"
+}
 
-# Create secret from .env file
-echo "Creating secrets..."
-kubectl create secret generic secrets --namespace ns-py-micro --from-env-file=.env
+# Parse command line arguments
+DEPLOYMENT_TYPE=""
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        -t|--type)
+            DEPLOYMENT_TYPE="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $1${NC}"
+            usage
+            exit 1
+            ;;
+    esac
+done
 
-# Apply Kubernetes configurations
-echo "Deploying services..."
-kubectl apply -f kubernetes/rabbitmq.yaml
-kubectl apply -f kubernetes/mongo.yaml
-kubectl apply -f kubernetes/postgres.yaml
-kubectl apply -f kubernetes/users-job.yaml
-kubectl wait --for=condition=complete job/users-migration-job --timeout=60s
-kubectl apply -f kubernetes/users-deployment.yaml
-kubectl apply -f kubernetes/converter.yaml
-kubectl apply -f kubernetes/notification.yaml
-kubectl apply -f kubernetes/gateway.yaml
+# Validate the script is run from the project root
+if [ ! -d "scripts" ] || [ ! -f "scripts/setup-cluster.sh" ]; then
+    echo -e "${RED}Error: This script must be run from the project root directory${NC}"
+    echo -e "${RED}Please cd to the root of the microservices-python project${NC}"
+    exit 1
+fi
 
-# Wait for all deployments to be ready
-echo "Waiting for deployments to be ready..."
-kubectl wait --for=condition=ready pod -l app=users --timeout=10s
-kubectl wait --for=condition=ready pod -l app=converter --timeout=10s
-kubectl wait --for=condition=ready pod -l app=notification --timeout=10s
-kubectl wait --for=condition=ready pod -l app=gateway --timeout=10s
+# If deployment type is not provided, ask user
+if [ -z "$DEPLOYMENT_TYPE" ]; then
+    echo -e "\n${YELLOW}Choose deployment method:${NC}"
+    echo -e "  1) ${CYAN}Helm${NC} - Deploy using Helm charts"
+    echo -e "  2) ${CYAN}Kubernetes${NC} - Deploy using plain Kubernetes manifests"
+    read -p "Enter your choice (1 or 2): " CHOICE
+    
+    case $CHOICE in
+        1)
+            DEPLOYMENT_TYPE="helm"
+            ;;
+        2)
+            DEPLOYMENT_TYPE="k8s"
+            ;;
+        *)
+            echo -e "${RED}Invalid choice. Exiting.${NC}"
+            exit 1
+            ;;
+    esac
+fi
 
-# Port forward the gateway service (since we're using kind)
-echo "Setting up port forwarding for gateway service..."
-kubectl port-forward svc/gateway-service -n ns-py-micro 8080:5000 &
+# Setup the cluster
+echo -e "\n${YELLOW}Step 1: Setting up the KIND-CLUSTER...${NC}"
+bash ./scripts/setup-cluster.sh
 
-echo "Deployment complete! Gateway service is accessible at http://localhost:8080"
+# Execute the appropriate deployment script
+echo -e "\n${YELLOW}Step 2: Deploying services using ${DEPLOYMENT_TYPE}...${NC}"
+if [ "$DEPLOYMENT_TYPE" = "helm" ]; then
+    bash ./scripts/deploy-helm.sh
+elif [ "$DEPLOYMENT_TYPE" = "k8s" ]; then
+    bash ./scripts/deploy-k8s.sh
+else
+    echo -e "${RED}Error: Invalid deployment type: $DEPLOYMENT_TYPE${NC}"
+    echo -e "${RED}Valid options are 'helm' or 'k8s'${NC}"
+    usage
+    exit 1
+fi
+
+
