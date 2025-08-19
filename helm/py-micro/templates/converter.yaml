@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: converter-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.converter.replicas }}
+  selector:
+    matchLabels:
+      app: converter
+  template:
+    metadata:
+      labels:
+        app: converter
+    spec:
+      containers:
+        - name: converter
+          image: {{ .Values.converter.image }}
+          imagePullPolicy: {{ .Values.converter.imagePullPolicy | default "IfNotPresent" }}
+          envFrom:
+            - secretRef:
+                name: secrets
+          resources:
+            {{- toYaml .Values.converter.resources | nindent 12 }}

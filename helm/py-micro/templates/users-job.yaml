@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: users-migration-job
+  namespace: {{ .Values.namespace }}
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.postgres.image }}
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h {{ .Values.postgres.service.name }} -p {{ .Values.postgres.port }}; do
+                echo "waiting for postgres"
+                sleep 2
+              done
+      containers:
+        - name: alembic-migration-container
+          image: {{ .Values.users.image }}
+          imagePullPolicy: {{ .Values.users.imagePullPolicy | default "IfNotPresent" }}
+          envFrom:
+            - secretRef:
+                name: secrets
+          command: [ "sh", "-c", "alembic upgrade head" ]
+      restartPolicy: Never
+  backoffLimit: {{ .Values.users.job.backoffLimit | default 8 }}

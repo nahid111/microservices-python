@@ -1,28 +1,27 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mongodb-pv
+  name: postgres-pv
 spec:
   capacity:
     storage: 1Gi
   volumeMode: Filesystem
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard
   hostPath:
-    path: "/k8data/mongodb"
+    path: "/k8data/postgres"
     type: DirectoryOrCreate
 
 ---
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongodb-pvc
+  name: postgres-pvc
   namespace: ns-py-micro
 spec:
-  volumeName: mongodb-pv
-  storageClassName: standard
+  volumeName: postgres-pv
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
@@ -30,52 +29,49 @@ spec:
       storage: 1Gi
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb-service
+  name: postgres-service
   namespace: ns-py-micro
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
-    app: mongodb
+    app: postgres
   ports:
     - protocol: TCP
-      port: 27017
-      targetPort: 27017
+      port: 5432
+      targetPort: 5432
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb-deployment
+  name: postgres-deployment
   namespace: ns-py-micro
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb
+      app: postgres
   template:
     metadata:
       labels:
-        app: mongodb
+        app: postgres
     spec:
       restartPolicy: Always
       containers:
-        - name: mongodb-node
-          image: mongo:6-jammy
+        - name: postgres-node
+          image: postgres:15
           envFrom:
             - secretRef:
                 name: secrets
           ports:
-            - containerPort: 27017
+            - containerPort: 5432
           volumeMounts:
-            - name: mongodb-volume
-              mountPath: /data/db
-
+            - name: postgres-volume
+              mountPath: /var/lib/postgresql/data
       volumes:
-        - name: mongodb-volume
+        - name: postgres-volume
           persistentVolumeClaim:
-            claimName: mongodb-pvc
+            claimName: postgres-pvc

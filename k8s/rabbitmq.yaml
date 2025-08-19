@@ -8,7 +8,7 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard
+  storageClassName: local-path
   hostPath:
     path: "/k8data/rabbit"
     type: DirectoryOrCreate
@@ -21,7 +21,7 @@ metadata:
   namespace: ns-py-micro
 spec:
   volumeName: rabbitmq-pv
-  storageClassName: standard
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:

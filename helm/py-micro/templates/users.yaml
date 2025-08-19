@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: users
+  ports:
+    - protocol: TCP
+      port: {{ .Values.users.port }}
+      targetPort: {{ .Values.users.port }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.users.replicas }}
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users
+          image: {{ .Values.users.image }}
+          imagePullPolicy: {{ .Values.users.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.users.port }}
+          envFrom:
+            - secretRef:
+                name: secrets
+          resources:
+            {{- toYaml .Values.users.resources | nindent 12 }}

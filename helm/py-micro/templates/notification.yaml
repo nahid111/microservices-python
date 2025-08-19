@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.notification.replicas }}
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+        - name: notification
+          image: {{ .Values.notification.image }}
+          imagePullPolicy: {{ .Values.notification.imagePullPolicy | default "IfNotPresent" }}
+          envFrom:
+            - secretRef:
+                name: secrets
+          resources:
+            {{- toYaml .Values.notification.resources | nindent 12 }}

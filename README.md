@@ -48,38 +48,46 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
   $ sudo rm -rf volMongo/ volMysql/ volRabbit/
   ```
 
-## Deploy to Kubernetes Cluster (<a href="https://minikube.sigs.k8s.io/">minikube</a>)
+## Deploy to local <a href="https://kind.sigs.k8s.io/docs/user/quick-start">kind</a> cluster 
 
-- Build your images and push them to dockerhub
-- Set them appropriately in the deployment yaml files like so
-  ```yaml
-  apiVersion: apps/v1
-  ...
-  spec:
-    ...
-    template:
-      ...
-        containers:
-          - image: nahid111/py-micro-users
+- install kubectl & helm
+
+  ```shell
+  # Helm
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+  # kubectl
+  curl -LO "https://dl.k8s.io/release/$(curl -sSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  chmod +x kubectl
+  sudo mv kubectl /usr/local/bin
   ```
-- Populate envs properly
-  ```dotenv
-  MYSQL_HOST=mysql-service
-  RABBITMQ_HOST=rabbitmq
-  MONGODB_URL=mongodb://<YOUR_USER>:<YOUR_PASSWORD>@mongodb-service:27017/
+
+- create .env using .env.example
+
   ```
-- Change permission for deployment scripts
-  ```commandline
-  $ chmod +x deployment.sh
-  $ chmod +x cleanup.sh
+  POSTGRES_DB=
+  POSTGRES_HOST=postgres-service
+  POSTGRES_PORT=5432
+  POSTGRES_USER=
+  POSTGRES_PASSWORD=
+
+  SECRET_KEY=this-is-needed
+  SECRET_KEY_REFRESH=this-is-needed-too
+
+  MONGO_INITDB_ROOT_USERNAME=root
+  MONGO_INITDB_ROOT_PASSWORD=example
+  MONGODB_URL=mongodb://root:example@mongoDB:27017/
+
+  RABBITMQ_HOST=rabbitMQ
+  QUEUE_NAME=videos_topic
+  CONVERTER_QUEUE_TO_PUBLISH=mp3s_topic
+  CONVERTER_QUEUE_TO_SUBSCRIBE=videos_topic
+  NOTIFICATION_QUEUE_TO_SUBSCRIBE=mp3s_topic
+
+  MAIL_USERNAME=
+  MAIL_PASSWORD=
+  
+  USERS_SERVICE_URL=http://users-service:8008
   ```
-- Run `./deployment.sh`
-- Use the minikube service url outputted in the terminal
-  ```commandline
-  |-----------|---------------|-------------|---------------------------|
-  | NAMESPACE |     NAME      | TARGET PORT |            URL            |
-  |-----------|---------------|-------------|---------------------------|
-  | default   |gateway-service|        5000 | http://192.168.49.2:30312 |
-  |-----------|---------------|-------------|---------------------------|
-  ```
+- Run `./deploy.sh`
 - For cleaning up, run `./cleanup.sh`

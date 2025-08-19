@@ -1,0 +1,99 @@
+namespace: ns-py-micro
+
+ingress:
+  enabled: true
+  host: py-micro.local
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  tls: false
+  tlsSecretName: py-micro-tls-secret
+
+storage:
+  className: local-path
+  postgres:
+    size: 1Gi
+    path: "/k8data/postgres"
+  rabbitmq:
+    size: 1Gi
+    path: "/k8data/rabbit"
+
+postgres:
+  image: postgres:15
+  port: 5432
+  replicas: 1
+  service:
+    name: postgres-service
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+
+rabbitmq:
+  image: rabbitmq:3-management
+  httpPort: 15672
+  amqpPort: 5672
+  replicas: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+
+gateway:
+  image: nahid111/py-micro-gateway
+  port: 5000
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+users:
+  image: nahid111/py-micro-users
+  port: 8008
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  job:
+    backoffLimit: 8
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+converter:
+  image: nahid111/py-micro-converter
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+notification:
+  image: nahid111/py-micro-notification
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
