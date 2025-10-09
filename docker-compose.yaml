@@ -83,7 +83,7 @@ services:
 
   users-service:
     build:
-      context: ./users-service
+      context: ./src/users-service
       dockerfile: Dockerfile
     container_name: "users-service"
     command:
@@ -104,11 +104,11 @@ services:
     networks:
       - skynet
     volumes:
-      - './users-service/:/users_svc_app'
+      - './src/users-service/:/users_svc_app'
 
   gateway-service:
     build:
-      context: ./gateway
+      context: ./src/gateway
       dockerfile: Dockerfile
     container_name: "gateway-service"
     command: [ "python", "run.py" ]
@@ -124,11 +124,11 @@ services:
     networks:
       - skynet
     volumes:
-      - './gateway/:/gateway_svc_app'
+      - './src/gateway/:/gateway_svc_app'
 
   converter-service:
     build:
-      context: ./converter-service
+      context: ./src/converter-service
       dockerfile: Dockerfile
     container_name: "converter-service"
     command: [ "python", "run.py" ]
@@ -142,11 +142,11 @@ services:
     networks:
       - skynet
     volumes:
-      - './converter-service/:/converter_svc_app'
+      - './src/converter-service/:/converter_svc_app'
 
   notification-service:
     build:
-      context: ./notification-service
+      context: ./src/notification-service
       dockerfile: Dockerfile
     container_name: "notification-service"
     command: [ "python", "run.py" ]
@@ -160,7 +160,7 @@ services:
     networks:
       - skynet
     volumes:
-      - './notification-service/:/notification_svc_app'
+      - './src/notification-service/:/notification_svc_app'
 
 networks:
   skynet:
