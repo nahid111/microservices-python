@@ -1,6 +1,6 @@
-FROM python:3.13.5-alpine
+FROM python:3.13.5-slim
 
-ENV INSTALL_PATH /notification_svc_app
+ENV INSTALL_PATH=/converter_svc_app
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 

@@ -5,7 +5,7 @@
 ## About
 
 <p>
-This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> implementation of the <strong>video to mp3 converter system</strong> demonstrated at <strong><a href="https://www.youtube.com/watch?v=ZYAPH56ANC8" target="_blank">Kantan Coding</a></strong>
+This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> implementation of the <strong style="font-size: 18px;">video to mp3 converter system</strong> demonstrated at <strong><a href="https://www.youtube.com/watch?v=ZYAPH56ANC8" target="_blank">Kantan Coding</a></strong>
 <p/>
 
 ### Components
@@ -28,20 +28,10 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
 
 ## Running with docker compose
 
-- Required envs <br/>
-  Create a **.env** file in project root with the values from **example.env** file
-- Run docker compose
-  ```commandline
-  $ docker compose up
-  ```
-  Or run in detached mode
-  ```commandline
-  $ docker compose up -d
-  ```
-- Visit for Api Docs
-  ```
-  http://0.0.0.0:5000/docs
-  ```
+- create **.env** using ***.env.example*** in project root
+
+- Run `$ docker compose up -d`
+- Visit `http://0.0.0.0:5000/docs`
 - Cleanup
   ```commandline
   $ docker compose down -v
@@ -50,44 +40,16 @@ This is a <strong><a href="https://fastapi.tiangolo.com/">FastApi</a></strong> i
 
 ## Deploy to local <a href="https://kind.sigs.k8s.io/docs/user/quick-start">kind</a> cluster 
 
-- install kubectl & helm
+- install <a href="https://kind.sigs.k8s.io/docs/user/quick-start">kind</a>, <a href="https://pwittrock.github.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl">kubectl</a> & <a href="https://helm.sh/docs/intro/install/#from-script">helm</a>
 
-  ```shell
-  # Helm
-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+- create **.env** using ***.env.example*** in project root
+- Deploy `$ ./deploy.sh`
+- Cleanup `$ ./cleanup.sh`
+- Delete cluster `$ kind delete cluster --name=my-cluster`
 
-  # kubectl
-  curl -LO "https://dl.k8s.io/release/$(curl -sSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-  chmod +x kubectl
-  sudo mv kubectl /usr/local/bin
-  ```
 
-- create .env using .env.example
+### <a href="./cmds.md">cmds</a>
 
-  ```
-  POSTGRES_DB=
-  POSTGRES_HOST=postgres-service
-  POSTGRES_PORT=5432
-  POSTGRES_USER=
-  POSTGRES_PASSWORD=
 
-  SECRET_KEY=this-is-needed
-  SECRET_KEY_REFRESH=this-is-needed-too
-
-  MONGO_INITDB_ROOT_USERNAME=root
-  MONGO_INITDB_ROOT_PASSWORD=example
-  MONGODB_URL=mongodb://root:example@mongoDB:27017/
-
-  RABBITMQ_HOST=rabbitMQ
-  QUEUE_NAME=videos_topic
-  CONVERTER_QUEUE_TO_PUBLISH=mp3s_topic
-  CONVERTER_QUEUE_TO_SUBSCRIBE=videos_topic
-  NOTIFICATION_QUEUE_TO_SUBSCRIBE=mp3s_topic
-
-  MAIL_USERNAME=
-  MAIL_PASSWORD=
-  
-  USERS_SERVICE_URL=http://users-service:8008
-  ```
-- Run `./deploy.sh`
-- For cleaning up, run `./cleanup.sh`
+> ### NOTE:
+> When using tools like <a href="https://k8slens.dev/">Lens</a>, Make sure to select the proper **namespace** while inspecting the cluster workloads 

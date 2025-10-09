@@ -6,7 +6,7 @@ set -e
 echo ""
 if ! kind get clusters | grep -q "my-cluster"; then
     echo "🌱 Creating a new kind cluster named 'my-cluster'..."
-    kind create cluster --name my-cluster --config ./scripts/kind-cluster-config.yaml
+    kind create cluster --name my-cluster --config ./k8s/kind-cluster-config.yaml
 else
     echo "🔄 Using existing kind cluster 'my-cluster'."
 fi
@@ -43,10 +43,10 @@ kubectl -n ingress-nginx get services
 # ---------------------------------------------------------------
 echo ""
 echo "🔨 Building Docker images..."
-docker build -t nahid111/py-micro-users ./users-service/
-docker build -t nahid111/py-micro-converter ./converter-service/
-docker build -t nahid111/py-micro-notification ./notification-service/
-docker build -t nahid111/py-micro-gateway ./gateway/
+docker build -t nahid111/py-micro-users ./src/users-service/
+docker build -t nahid111/py-micro-converter ./src/converter-service/
+docker build -t nahid111/py-micro-notification ./src/notification-service/
+docker build -t nahid111/py-micro-gateway ./src/gateway/
 
 # Load images into kind cluster
 # ---------------------------------------------------------------

@@ -1,5 +1,5 @@
-apiVersion: batch/v1
 kind: Job
+apiVersion: batch/v1
 metadata:
   name: users-migration-job
   namespace: ns-py-micro
